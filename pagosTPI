@@ -1,0 +1,194 @@
+-- phpMyAdmin SQL Dump
+-- version 4.0.4.1
+-- http://www.phpmyadmin.net
+--
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 08-12-2013 a las 05:20:12
+-- Versión del servidor: 5.5.32
+-- Versión de PHP: 5.4.16
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- Base de datos: `pagostpi`
+--
+CREATE DATABASE IF NOT EXISTS `pagostpi` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `pagostpi`;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `administrador`
+--
+
+CREATE TABLE IF NOT EXISTS `administrador` (
+  `codigoEmpleado` int(11) NOT NULL,
+  `user` varchar(8) NOT NULL,
+  PRIMARY KEY (`codigoEmpleado`),
+  KEY `FK_Generalization_1` (`user`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cliente`
+--
+
+CREATE TABLE IF NOT EXISTS `cliente` (
+  `idCliente` int(11) NOT NULL,
+  `codigoEmpleado` int(11) NOT NULL,
+  `user` varchar(8) NOT NULL,
+  `segundoNombre` varchar(50) DEFAULT NULL,
+  `segundoApellido` varchar(50) DEFAULT NULL,
+  `tipoCliente` varchar(10) NOT NULL,
+  `DUI` varchar(9) DEFAULT NULL,
+  `NIT` varchar(14) NOT NULL,
+  `numeroTarjeta` varchar(16) NOT NULL,
+  `nombreEmpresa` varchar(70) DEFAULT NULL,
+  PRIMARY KEY (`idCliente`),
+  KEY `FK_Generalization_2` (`user`),
+  KEY `FK_gestiona` (`codigoEmpleado`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `compra`
+--
+
+CREATE TABLE IF NOT EXISTS `compra` (
+  `idCliente` int(11) NOT NULL,
+  `idProducto` int(11) NOT NULL,
+  `cantidad` smallint(6) NOT NULL,
+  `fechaCompra` date NOT NULL,
+  KEY `FK_Association_6` (`idCliente`),
+  KEY `FK_Association_7` (`idProducto`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `contrata`
+--
+
+CREATE TABLE IF NOT EXISTS `contrata` (
+  `idCliente` int(11) NOT NULL,
+  `idServicio` int(11) NOT NULL,
+  `fechaInicioContrato` datetime NOT NULL,
+  `periodoContrato` int(11) NOT NULL,
+  KEY `FK_Association_5` (`idCliente`),
+  KEY `FK_Association_8` (`idServicio`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `factura`
+--
+
+CREATE TABLE IF NOT EXISTS `factura` (
+  `numeroFactura` int(11) NOT NULL,
+  `idCliente` int(11) NOT NULL,
+  `fechaDeCreacionFactura` date NOT NULL,
+  `fechaDeVencimientoFactura` date NOT NULL,
+  `monto` decimal(10,2) NOT NULL,
+  `pagada` tinyint(1) NOT NULL,
+  `periodoDePago` int(11) NOT NULL,
+  `saldoAnterior` decimal(10,2) NOT NULL,
+  `pagosRecibidos` decimal(10,2) NOT NULL,
+  `mora` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`numeroFactura`),
+  KEY `FK_Association_2` (`idCliente`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `producto`
+--
+
+CREATE TABLE IF NOT EXISTS `producto` (
+  `idProducto` int(11) NOT NULL,
+  `nombreProducto` varchar(70) NOT NULL,
+  `descripcionProducto` varchar(200) NOT NULL,
+  `precioUnitario` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`idProducto`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `servicio`
+--
+
+CREATE TABLE IF NOT EXISTS `servicio` (
+  `idServicio` int(11) NOT NULL,
+  `nombreServicio` varchar(70) NOT NULL,
+  `descripcionServicio` varchar(200) NOT NULL,
+  `precio` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`idServicio`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuario`
+--
+
+CREATE TABLE IF NOT EXISTS `usuario` (
+  `user` varchar(8) NOT NULL,
+  `contrasena` varchar(15) NOT NULL,
+  `fechaDeCreacion` datetime NOT NULL,
+  `activo` tinyint(1) NOT NULL,
+  `primerNombre` varchar(50) NOT NULL,
+  `segundoNombre` varchar(50) NOT NULL,
+  PRIMARY KEY (`user`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `administrador`
+--
+ALTER TABLE `administrador`
+  ADD CONSTRAINT `FK_Generalization_1` FOREIGN KEY (`user`) REFERENCES `usuario` (`user`);
+
+--
+-- Filtros para la tabla `cliente`
+--
+ALTER TABLE `cliente`
+  ADD CONSTRAINT `FK_Generalization_2` FOREIGN KEY (`user`) REFERENCES `usuario` (`user`),
+  ADD CONSTRAINT `FK_gestiona` FOREIGN KEY (`codigoEmpleado`) REFERENCES `administrador` (`codigoEmpleado`);
+
+--
+-- Filtros para la tabla `compra`
+--
+ALTER TABLE `compra`
+  ADD CONSTRAINT `FK_Association_6` FOREIGN KEY (`idCliente`) REFERENCES `cliente` (`idCliente`),
+  ADD CONSTRAINT `FK_Association_7` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`);
+
+--
+-- Filtros para la tabla `contrata`
+--
+ALTER TABLE `contrata`
+  ADD CONSTRAINT `FK_Association_5` FOREIGN KEY (`idCliente`) REFERENCES `cliente` (`idCliente`),
+  ADD CONSTRAINT `FK_Association_8` FOREIGN KEY (`idServicio`) REFERENCES `servicio` (`idServicio`);
+
+--
+-- Filtros para la tabla `factura`
+--
+ALTER TABLE `factura`
+  ADD CONSTRAINT `FK_Association_2` FOREIGN KEY (`idCliente`) REFERENCES `cliente` (`idCliente`);
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
